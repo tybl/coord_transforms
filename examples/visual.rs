@@ -31,7 +31,7 @@ fn main() {
         let mut dx: i64 = 1;
         let mut dy: i64 = 1;
         let mut err: i64 = dx - (radius << 1);
-        let colorPix = 0xFFFFFF;
+        let color_pix = 0xFFFFFF;
 
         //Line code
         let mut p1x: i64 = WIDTH as i64 / 2;
@@ -63,7 +63,7 @@ fn main() {
         let pdx = p2x - p1x;
         let pdy = (p2y - p1y).abs();
         let mut perror = pdx / 2;
-        let mut pystep = 0;
+        let pystep: i64;
         if p1y < p2y {
             pystep = 1;
         } else {
@@ -74,14 +74,14 @@ fn main() {
 
         //Draw circle
         while x >= y {
-            buffer[xy2lin(x0 + x, y0 + y) as usize] = colorPix;
-            buffer[xy2lin(x0 + y, y0 + x) as usize] = colorPix;
-            buffer[xy2lin(x0 - y, y0 + x) as usize] = colorPix;
-            buffer[xy2lin(x0 - x, y0 + y) as usize] = colorPix;
-            buffer[xy2lin(x0 - x, y0 - y) as usize] = colorPix;
-            buffer[xy2lin(x0 - y, y0 - x) as usize] = colorPix;
-            buffer[xy2lin(x0 + y, y0 - x) as usize] = colorPix;
-            buffer[xy2lin(x0 + x, y0 - y) as usize] = colorPix;
+            buffer[xy2lin(x0 + x, y0 + y) as usize] = color_pix;
+            buffer[xy2lin(x0 + y, y0 + x) as usize] = color_pix;
+            buffer[xy2lin(x0 - y, y0 + x) as usize] = color_pix;
+            buffer[xy2lin(x0 - x, y0 + y) as usize] = color_pix;
+            buffer[xy2lin(x0 - x, y0 - y) as usize] = color_pix;
+            buffer[xy2lin(x0 - y, y0 - x) as usize] = color_pix;
+            buffer[xy2lin(x0 + y, y0 - x) as usize] = color_pix;
+            buffer[xy2lin(x0 + x, y0 - y) as usize] = color_pix;
             if err <= 0 {
                 y += 1;
                 err += dy;
@@ -97,9 +97,9 @@ fn main() {
         //Draw line
         for x in p1x..pmaxx {
             if psteep {
-                buffer[xy2lin(py0, x) as usize] = colorPix;
+                buffer[xy2lin(py0, x) as usize] = color_pix;
             } else {
-                buffer[xy2lin(x, py0) as usize] = colorPix;
+                buffer[xy2lin(x, py0) as usize] = color_pix;
             }
             perror -= pdy;
             if perror < 0 {

@@ -208,26 +208,26 @@ pub fn ll2utm(
     ];
 
     let mut xi = xip;
-    for j in 1..7 {
-        xi += alpha[j] * (2.0 * (j as f64) * xip).sin() * (2.0 * (j as f64) * etap).cosh();
+    for (j, al) in alpha.iter().enumerate().skip(1) {
+        xi += al * (2.0 * (j as f64) * xip).sin() * (2.0 * (j as f64) * etap).cosh();
     }
     let mut eta = etap;
-    for j in 1..7 {
-        eta += alpha[j] * (2.0 * (j as f64) * xip).cos() * (2.0 * (j as f64) * etap).sinh();
+    for (j, al) in alpha.iter().enumerate().skip(1) {
+        eta += al * (2.0 * (j as f64) * xip).cos() * (2.0 * (j as f64) * etap).sinh();
     }
     let mut easting = utm_grid::SCALE_FACTOR_CENTERAL_MERIDIAN * a_maj * eta;
     let mut northing = utm_grid::SCALE_FACTOR_CENTERAL_MERIDIAN * a_maj * xi;
 
     //Determine convergence
     let mut pp = 1.0;
-    for j in 1..7 {
-        pp += (2.0 * (j as f64) * alpha[j])
+    for (j, al) in alpha.iter().enumerate().skip(1) {
+        pp += (2.0 * (j as f64) * al)
             * (2.0 * (j as f64) * xip).cos()
             * (2.0 * (j as f64) * etap).cosh();
     }
     let mut qp = 0.0;
-    for j in 1..7 {
-        qp += (2.0 * (j as f64) * alpha[j])
+    for (j, al) in alpha.iter().enumerate().skip(1) {
+        qp += (2.0 * (j as f64) * al)
             * (2.0 * (j as f64) * xip).sin()
             * (2.0 * (j as f64) * etap).sinh();
     }
@@ -298,11 +298,11 @@ pub fn utm2ll(utm: &utm_grid::utm_grid, ellipsoid: &geo_ellipsoid::geo_ellipsoid
     let e = ellipsoid.get_first_ecc();
 
     //Make x relative to central meridian
-    x = x - utm_grid::FALSE_EASTING;
+    x -= utm_grid::FALSE_EASTING;
 
     //Make y relative to equator
     if h == utm_grid::hemisphere::SOUTH {
-        y = y - utm_grid::FALSE_NORTHING;
+        y -= utm_grid::FALSE_NORTHING;
     }
 
     let n = f / (2.0 - f);
@@ -312,9 +312,9 @@ pub fn utm2ll(utm: &utm_grid::utm_grid, ellipsoid: &geo_ellipsoid::geo_ellipsoid
     let n5 = n * n4;
     let n6 = n * n5;
 
-    let A = a / (1.0 + n) * (1.0 + 1.0 / 4.0 * n2 + 1.0 / 64.0 * n4 + 1.0 / 256.0 * n6);
-    let eta = x / (utm_grid::SCALE_FACTOR_CENTERAL_MERIDIAN * A);
-    let xi = y / (utm_grid::SCALE_FACTOR_CENTERAL_MERIDIAN * A);
+    let a_prime = a / (1.0 + n) * (1.0 + 1.0 / 4.0 * n2 + 1.0 / 64.0 * n4 + 1.0 / 256.0 * n6);
+    let eta = x / (utm_grid::SCALE_FACTOR_CENTERAL_MERIDIAN * a_prime);
+    let xi = y / (utm_grid::SCALE_FACTOR_CENTERAL_MERIDIAN * a_prime);
 
     let beta = [
         0.0,
@@ -329,13 +329,13 @@ pub fn utm2ll(utm: &utm_grid::utm_grid, ellipsoid: &geo_ellipsoid::geo_ellipsoid
     ];
 
     let mut xip = xi;
-    for j in 1..7 {
-        xip -= beta[j] * (2.0 * (j as f64) * xi).sin() * (2.0 * (j as f64) * eta).cosh();
+    for (j, b) in beta.iter().enumerate().skip(1) {
+        xip -= b * (2.0 * (j as f64) * xi).sin() * (2.0 * (j as f64) * eta).cosh();
     }
 
     let mut etap = eta;
-    for j in 1..7 {
-        etap -= beta[j] * (2.0 * (j as f64) * xi).cos() * (2.0 * (j as f64) * eta).sinh();
+    for (j, b) in beta.iter().enumerate().skip(1) {
+        etap -= b * (2.0 * (j as f64) * xi).cos() * (2.0 * (j as f64) * eta).sinh();
     }
 
     let sinetap = etap.sinh();
@@ -463,8 +463,7 @@ pub fn ned2lla(
     );
     let actual = ned_rot * ned_vec;
     let total = actual + orig;
-    let ret_vec = ecef2lla(&total, ellipsoid);
-    ret_vec
+    ecef2lla(&total, ellipsoid)
 }
 
 /// Converts 3-d local cartesian ENU coordinates plus 3-d LLA origin coordinates and an ellipsoid to 3-d LLA coordinates
@@ -498,8 +497,7 @@ pub fn enu2lla(
     );
     let actual = enu_rot * enu_vec;
     let total = actual + orig;
-    let ret_vec = ecef2lla(&total, ellipsoid);
-    ret_vec
+    ecef2lla(&total, ellipsoid)
 }
 
 //Unit tests
